@@ -1,0 +1,14 @@
+.server-dashboard-torrent-data {
+  width: calc(100% / 6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.server-dashboard-torrent-data-tooltip {
+  font-family: var(
+    --mdc-typography-caption-font-family,
+    var(--mdc-typography-font-family, Roboto, sans-serif)
+  ) !important;
+}

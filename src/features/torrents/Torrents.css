@@ -1,0 +1,28 @@
+.server-dashboard-torrents-card-divider {
+  margin: 0 0 10px 0;
+}
+
+.server-dashboard-torrent-detail {
+  padding: 9px 15px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.server-dashboard-torrent-detail-group {
+  width: 100%;
+  height: 100%;
+
+  padding: 0px 5px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.server-dashboard-add-torrent-links-textarea textarea {
+  resize: none !important;
+}

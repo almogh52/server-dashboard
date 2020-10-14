@@ -1,0 +1,3 @@
+.server-dashboard-list-item-icon-rotate-180deg .mdc-list-item__graphic {
+  transform: rotate(180deg);
+}

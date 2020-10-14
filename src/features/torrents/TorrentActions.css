@@ -1,0 +1,13 @@
+.server-dashboard-button-icon-rotate-90deg .mdc-button__icon {
+  transform: rotate(90deg);
+}
+
+.server-dashboard-list-item-icon-rotate-90deg .mdc-list-item__graphic {
+  transform: rotate(90deg);
+}
+
+.server-dashboard-torrent-action {
+  width: 100%;
+
+  margin: 5px;
+}

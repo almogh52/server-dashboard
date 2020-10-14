@@ -1,57 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React from "react";
+import "./App.css";
+
+import {
+  TopAppBar,
+  TopAppBarRow,
+  TopAppBarSection,
+  TopAppBarTitle,
+  TopAppBarFixedAdjust,
+} from "@rmwc/top-app-bar";
+import "@rmwc/top-app-bar/styles";
+
+import { ThemeProvider } from "@rmwc/theme";
+import "@rmwc/theme/styles";
+
+import { DialogQueue } from "@rmwc/dialog";
+import "@rmwc/dialog/styles";
+
+import { SnackbarQueue } from "@rmwc/snackbar";
+import "@rmwc/snackbar/styles";
+
+import { dialogQueue } from "./dialogQueue";
+import { snackbarQueue } from "./snackbarQueue";
+
+import { Torrents } from "./features/torrents/Torrents";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <ThemeProvider
+      className="server-dashboard-app"
+      options={{ primary: "#0091ea", secondary: "#212121" }}
+    >
+      <DialogQueue dialogs={dialogQueue.dialogs} />
+      <SnackbarQueue messages={snackbarQueue.messages} leading />
+      <TopAppBar fixed>
+        <TopAppBarRow>
+          <TopAppBarSection>
+            <TopAppBarTitle>Server Dashboard</TopAppBarTitle>
+          </TopAppBarSection>
+        </TopAppBarRow>
+      </TopAppBar>
+      <TopAppBarFixedAdjust />
+      <div className="server-dashboard-app-body">
+        <div className="server-dashboard-app-content">
+          <Torrents />
+        </div>
+      </div>
+    </ThemeProvider>
   );
 }
 
