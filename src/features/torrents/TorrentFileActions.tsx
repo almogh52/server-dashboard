@@ -1,6 +1,6 @@
 import React from "react";
 
-import { TorrentFile, TorrentFilePriority } from "./torrentsSlice";
+import { TorrentFile, TorrentFilePriority } from "./torrentsTypes";
 
 import axios from "axios";
 import { dialogQueue } from "../../dialogQueue";

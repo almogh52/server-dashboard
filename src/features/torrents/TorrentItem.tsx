@@ -1,12 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "./TorrentItem.css";
-import {
-  Torrent,
-  TorrentState,
-  fetchTorrentFilesAsync,
-  selectTorrentFiles,
-} from "./torrentsSlice";
+import { fetchTorrentFilesAsync, selectTorrentFiles } from "./torrentsSlice";
+import { Torrent, TorrentState } from "./torrentsTypes";
 
 import { LinearProgress } from "@rmwc/linear-progress";
 import "@rmwc/linear-progress/styles";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./TorrentActions.css";
-import { Torrent, TorrentState } from "./torrentsSlice";
+import { Torrent, TorrentState } from "./torrentsTypes";
 
 import axios from "axios";
 import { dialogQueue } from "../../dialogQueue";
@@ -16,7 +16,6 @@ import { TextField } from "@rmwc/textfield";
 import "@rmwc/textfield/styles";
 
 import { Slider } from "@rmwc/slider";
-import { MDCSliderFoundation } from "@material/slider";
 import "@rmwc/slider/styles";
 
 import { ThemeProvider } from "@rmwc/theme";
@@ -35,6 +34,8 @@ import "@rmwc/list/styles";
 import { Elevation } from "@rmwc/elevation";
 import "@rmwc/elevation/styles";
 
+import { SpeedLimitTextField } from "./SpeedLimitTextField";
+
 import { useContextMenuEvent } from "react-context-menu-wrapper";
 
 import copy from "copy-to-clipboard";
@@ -45,6 +46,40 @@ export interface TorrentContextMenuProps {
 
 export interface TorrentActionsProps {
   torrent: Torrent;
+}
+
+interface SpeedLimitDialogProps {
+  defaultLimit: number;
+  setLimit: (limit: number) => void;
+}
+
+function SpeedLimitDialog(props: SpeedLimitDialogProps) {
+  const [limit, setLimit] = useState(props.defaultLimit);
+
+  return (
+    <>
+      <br />
+      <Slider
+        value={limit}
+        min={0}
+        max={10000}
+        step={1}
+        onInput={(evt) => {
+          setLimit(evt.detail.value);
+          props.setLimit(evt.detail.value);
+        }}
+      />
+      <SpeedLimitTextField
+        style={{ width: "250px" }}
+        outlined
+        limit={limit}
+        setLimit={(newLimit) => {
+          setLimit(newLimit);
+          props.setLimit(newLimit);
+        }}
+      />
+    </>
+  );
 }
 
 const pauseResumeTorrent = (torrent: Torrent): Promise<any> => {
@@ -204,41 +239,17 @@ const renameTorrentAction = (torrent: Torrent): Promise<any> => {
 const limitTorrentDownloadRateAction = (torrent: Torrent): Promise<any> => {
   let limit = Math.round(torrent.downloadLimit / 1000);
 
-  let textFieldRef = React.createRef<HTMLInputElement>();
-  let sliderRef = React.createRef<MDCSliderFoundation>();
-
   return dialogQueue
     .confirm({
       title: <b>Set Download Limit</b>,
       body: "Download limit:",
       children: (
-        <>
-          <br />
-          <Slider
-            foundationRef={sliderRef}
-            value={limit}
-            min={0}
-            max={10000}
-            step={1}
-            onInput={(evt) => {
-              limit = evt.detail.value;
-              textFieldRef.current!.value =
-                limit <= 0 ? "No limit" : `${limit} kB/s`;
-            }}
-          />
-          <TextField
-            style={{ width: "250px" }}
-            inputRef={textFieldRef}
-            outlined
-            defaultValue={limit <= 0 ? "No limit" : `${limit} kB/s`}
-            onChange={(evt) => {
-              limit = parseInt(evt.currentTarget.value.replace(/\D+/g, ""));
-              sliderRef.current!.setValue(limit);
-              evt.currentTarget.value =
-                limit <= 0 ? "No limit" : `${limit} kB/s`;
-            }}
-          />
-        </>
+        <SpeedLimitDialog
+          defaultLimit={limit}
+          setLimit={(newLimit) => {
+            limit = newLimit;
+          }}
+        />
       ),
       acceptLabel: "SET",
     })
@@ -261,41 +272,17 @@ const limitTorrentDownloadRateAction = (torrent: Torrent): Promise<any> => {
 const limitTorrentUploadRateAction = (torrent: Torrent): Promise<any> => {
   let limit = Math.round(torrent.uploadLimit / 1000);
 
-  let textFieldRef = React.createRef<HTMLInputElement>();
-  let sliderRef = React.createRef<MDCSliderFoundation>();
-
   return dialogQueue
     .confirm({
       title: <b>Set Upload Limit</b>,
       body: "Upload limit:",
       children: (
-        <>
-          <br />
-          <Slider
-            foundationRef={sliderRef}
-            value={limit}
-            min={0}
-            max={10000}
-            step={1}
-            onInput={(evt) => {
-              limit = evt.detail.value;
-              textFieldRef.current!.value =
-                limit <= 0 ? "No limit" : `${limit} kB/s`;
-            }}
-          />
-          <TextField
-            style={{ width: "250px" }}
-            inputRef={textFieldRef}
-            outlined
-            defaultValue={limit <= 0 ? "No limit" : `${limit} kB/s`}
-            onChange={(evt) => {
-              limit = parseInt(evt.currentTarget.value.replace(/\D+/g, ""));
-              sliderRef.current!.setValue(limit);
-              evt.currentTarget.value =
-                limit <= 0 ? "No limit" : `${limit} kB/s`;
-            }}
-          />
-        </>
+        <SpeedLimitDialog
+          defaultLimit={limit}
+          setLimit={(newLimit) => {
+            limit = newLimit;
+          }}
+        />
       ),
       acceptLabel: "SET",
     })

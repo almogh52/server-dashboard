@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./TorrentContents.css";
-import { TorrentFile, TorrentFilePriority } from "./torrentsSlice";
+import { TorrentFile, TorrentFilePriority } from "./torrentsTypes";
 
 import {
   List,

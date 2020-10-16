@@ -4,9 +4,11 @@ import { useDropzone } from "react-dropzone";
 import "./Torrents.css";
 import {
   selectTorrents,
-  selectApplicationName,
+  selectApplicationInfo,
+  selectPreferences,
   fetchTorrentsAsync,
-  fetchApplicationName,
+  fetchApplicationInfo,
+  fetchPreferences,
 } from "./torrentsSlice";
 
 import { TorrentItem } from "./TorrentItem";
@@ -29,6 +31,9 @@ import "@rmwc/elevation/styles";
 import { TextField } from "@rmwc/textfield";
 import "@rmwc/textfield/styles";
 
+import { Checkbox } from "@rmwc/checkbox";
+import "@rmwc/checkbox/styles";
+
 import {
   Dialog,
   DialogTitle,
@@ -38,16 +43,37 @@ import {
 } from "@rmwc/dialog";
 import "@rmwc/dialog/styles";
 
+import { SpeedLimitTextField } from "./SpeedLimitTextField";
+
 interface AddTorrentDialogProps {
   open: boolean;
   onClose: (evt: any) => void;
 
   fromFile: boolean;
+  defaultSavePath: string;
+  defaultStartTorrent: boolean;
+  defaultCreateSubfolder: boolean;
 }
 
 function AddTorrentDialog(props: AddTorrentDialogProps) {
   const [torrentFiles, setTorrentFiles] = useState<Array<File>>([]);
   const [torrentLinks, setTorrentLinks] = useState<Array<string>>([]);
+
+  const [autoManage, setAutoManage] = useState(false);
+  const [startTorrent, setStartTorrent] = useState(props.defaultStartTorrent);
+  const [skipHashCheck, setSkipHashCheck] = useState(false);
+  const [createSubfolder, setCreateSubfolder] = useState(
+    props.defaultCreateSubfolder
+  );
+  const [downloadSeqOrder, setDownloadSeqOrder] = useState(false);
+  const [downloadEdgeFirst, setDownloadEdgeFirst] = useState(false);
+
+  const [savePath, setSavePath] = useState(props.defaultSavePath);
+  const [cookie, setCookie] = useState("");
+  const [torrentName, setTorrentName] = useState("");
+
+  const [downloadLimit, setDownloadLimit] = useState(0);
+  const [uploadLimit, setUploadLimit] = useState(0);
 
   const onDrop = useCallback((files) => setTorrentFiles(files), []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -115,6 +141,86 @@ function AddTorrentDialog(props: AddTorrentDialogProps) {
             }
           />
         )}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            padding: "15px 0",
+          }}
+        >
+          <Checkbox
+            label="Automatic Torrent Managment"
+            checked={autoManage}
+            onChange={(evt) => setAutoManage(evt.currentTarget.checked)}
+          />
+          <TextField
+            label="Save Path"
+            icon="folder"
+            value={autoManage ? "" : savePath}
+            disabled={autoManage}
+            onChange={(evt) => setSavePath(evt.currentTarget.value)}
+          />
+          {!props.fromFile ? (
+            <TextField
+              label="Download Cookie"
+              icon="fingerprint"
+              value={cookie}
+              style={{ marginTop: "10px" }}
+              onChange={(evt) => setCookie(evt.currentTarget.value)}
+            />
+          ) : null}
+          <TextField
+            label="Rename Torrent"
+            icon="edit"
+            value={torrentName}
+            helpText={{
+              persistent: true,
+              children: "Keep empty for default name",
+            }}
+            style={{ marginTop: "10px" }}
+            onChange={(evt) => setTorrentName(evt.currentTarget.value)}
+          />
+          <Checkbox
+            label="Start Torrent"
+            checked={startTorrent}
+            style={{ marginTop: "5px" }}
+            onChange={(evt) => setStartTorrent(evt.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Skip Hash Check"
+            checked={skipHashCheck}
+            onChange={(evt) => setSkipHashCheck(evt.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Create Subfolder"
+            checked={createSubfolder}
+            onChange={(evt) => setCreateSubfolder(evt.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Download in Sequential Order"
+            checked={downloadSeqOrder}
+            onChange={(evt) => setDownloadSeqOrder(evt.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Download Edge Pieces First"
+            checked={downloadEdgeFirst}
+            onChange={(evt) => setDownloadEdgeFirst(evt.currentTarget.checked)}
+          />
+          <SpeedLimitTextField
+            label="Download Speed Limit"
+            icon="vertical_align_bottom"
+            limit={downloadLimit}
+            setLimit={setDownloadLimit}
+            style={{ marginTop: "5px" }}
+          />
+          <SpeedLimitTextField
+            label="Upload Speed Limit"
+            icon="vertical_align_top"
+            limit={uploadLimit}
+            setLimit={setUploadLimit}
+            style={{ marginTop: "10px" }}
+          />
+        </div>
       </DialogContent>
       <DialogActions>
         <DialogButton action="close">Cancel</DialogButton>
@@ -127,7 +233,8 @@ function AddTorrentDialog(props: AddTorrentDialogProps) {
 }
 
 export function Torrents() {
-  const applicationName = useSelector(selectApplicationName);
+  const applicationInfo = useSelector(selectApplicationInfo);
+  const preferences = useSelector(selectPreferences);
   const torrents = useSelector(selectTorrents);
 
   const dispatch = useDispatch();
@@ -136,7 +243,8 @@ export function Torrents() {
   const [addDialogFromFile, setAddDialogFromFile] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchApplicationName());
+    dispatch(fetchApplicationInfo());
+    dispatch(fetchPreferences());
     dispatch(fetchTorrentsAsync());
 
     const interval = setInterval(() => dispatch(fetchTorrentsAsync()), 400);
@@ -145,11 +253,16 @@ export function Torrents() {
 
   return (
     <Card style={{ width: "100%", minHeight: "100%" }}>
-      <AddTorrentDialog
-        fromFile={addDialogFromFile}
-        open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
-      />
+      {addDialogOpen ? (
+        <AddTorrentDialog
+          fromFile={addDialogFromFile}
+          defaultSavePath={preferences.savePath}
+          defaultStartTorrent={!preferences.startPausedEnabled}
+          defaultCreateSubfolder={preferences.createSubfolderEnabled}
+          open={addDialogOpen}
+          onClose={() => setAddDialogOpen(false)}
+        />
+      ) : null}
 
       <div
         style={{
@@ -183,7 +296,7 @@ export function Torrents() {
           />
         </div>
         <Typography use="subtitle2" theme="textSecondaryOnBackground">
-          {applicationName}
+          {applicationInfo}
         </Typography>
       </div>
       <ListDivider className="server-dashboard-torrents-card-divider" />

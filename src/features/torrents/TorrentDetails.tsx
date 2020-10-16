@@ -1,5 +1,5 @@
 import React from "react";
-import { Torrent, TorrentState, TorrentFile } from "./torrentsSlice";
+import { Torrent, TorrentState, TorrentFile } from "./torrentsTypes";
 import { setFilePriority, renameFileAction } from "./TorrentFileActions";
 
 import { TorrentActions } from "./TorrentActions";

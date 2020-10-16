@@ -2,84 +2,18 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk, RootState } from "../../app/store";
 import axios from "axios";
 
-export enum TorrentState {
-  Error,
-  Completed,
-  Paused,
-  Queued,
-  Seeding,
-  Stalled,
-  Checking,
-  Downloading,
-  FetchingMetadata,
-  Allocating,
-  Moving,
-  Unknown,
-  MissingFiles,
-}
-
-export interface Torrent {
-  hash: string;
-  addDate: Date;
-  completionDate: Date;
-  bytesDownloaded: number;
-  bytesDownloadedSession: number;
-  downloadLimit: number;
-  uploadLimit: number;
-  eta: number;
-  forceStart: boolean;
-  magnetUri: string;
-  name: string;
-  priority: number;
-  progress: number;
-  savePath: string;
-  size: number;
-  state: TorrentState;
-  downloadSpeed: number;
-  downloadSpeedAvg: number;
-  uploadSpeed: number;
-  uploadSpeedAvg: number;
-  bytesUploaded: number;
-  bytesUploadedSession: number;
-  timeActive: number;
-  creationDate: Date;
-  creatorComment: string;
-  createdBy: string;
-  connections: number;
-  connectionsLimit: number;
-  peers: number;
-  totalPeers: number;
-  seeds: number;
-  totalSeeds: number;
-  piecesDownloaded: number;
-  totalPieces: number;
-  pieceSize: number;
-}
-
-export enum TorrentFilePriority {
-  SkipDownload = 0,
-  Normal = 1,
-  Mixed = 3,
-  High = 6,
-  Maximum = 7,
-}
-
-export interface TorrentFile {
-  name: string;
-  priority: TorrentFilePriority;
-  progress: number;
-  size: number;
-  availability: number;
-}
+import { Torrent, TorrentFile, Preferences } from "./torrentsTypes";
 
 interface TorrentsState {
-  applicationName: string;
+  applicationInfo: string;
   torrents: Array<Torrent>;
   torrentsFiles: { [key: string]: Array<TorrentFile> };
+  preferences: Preferences;
 }
 
 const initialState: TorrentsState = {
-  applicationName: "",
+  applicationInfo: "",
+  preferences: {} as Preferences,
   torrents: [],
   torrentsFiles: {},
 };
@@ -88,8 +22,11 @@ export const torrentsSlice = createSlice({
   name: "torrents",
   initialState,
   reducers: {
-    setApplicationName: (state, action: PayloadAction<string>) => {
-      state.applicationName = action.payload;
+    setApplicationInfo: (state, action: PayloadAction<string>) => {
+      state.applicationInfo = action.payload;
+    },
+    setPreferences: (state, action: PayloadAction<Preferences>) => {
+      state.preferences = action.payload;
     },
     setTorrents: (state, action: PayloadAction<Array<Torrent>>) => {
       action.payload.sort((a, b) => {
@@ -116,11 +53,20 @@ export const torrentsSlice = createSlice({
   },
 });
 
-export const fetchApplicationName = (): AppThunk => (dispatch) => {
+export const fetchApplicationInfo = (): AppThunk => (dispatch) => {
   axios
-    .get("/api/qbittorrent/applicationName")
+    .get("/api/qbittorrent/application/info")
     .then((res) =>
-      dispatch(torrentsSlice.actions.setApplicationName(res.data as string))
+      dispatch(torrentsSlice.actions.setApplicationInfo(res.data as string))
+    )
+    .catch(() => {});
+};
+
+export const fetchPreferences = (): AppThunk => (dispatch) => {
+  axios
+    .get("/api/qbittorrent/application/preferences")
+    .then((res) =>
+      dispatch(torrentsSlice.actions.setPreferences(res.data as Preferences))
     )
     .catch(() => {});
 };
@@ -150,8 +96,10 @@ export const fetchTorrentFilesAsync = (torrentHash: string): AppThunk => (
     .catch(() => {});
 };
 
-export const selectApplicationName = (state: RootState) =>
-  state.torrents.applicationName;
+export const selectApplicationInfo = (state: RootState) =>
+  state.torrents.applicationInfo;
+export const selectPreferences = (state: RootState) =>
+  state.torrents.preferences;
 export const selectTorrents = (state: RootState) => state.torrents.torrents;
 export const selectTorrentFiles = (torrentHash: string) => (state: RootState) =>
   state.torrents.torrentsFiles[torrentHash];
