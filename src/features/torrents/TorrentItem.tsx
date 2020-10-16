@@ -85,7 +85,8 @@ function TorrentListItem(props: TorrentListItemProps) {
 
   const completed =
     props.torrent.state === TorrentState.Completed ||
-    props.torrent.bytesDownloaded >= props.torrent.size;
+    (props.torrent.totalPieces > 0 &&
+      props.torrent.bytesDownloaded >= props.torrent.size);
 
   const contextMenuId = `server-dashboard-torrent-context-menu-${props.torrent.hash}`;
   const itemRef = useContextMenuTrigger({

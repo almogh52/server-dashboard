@@ -2,18 +2,20 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk, RootState } from "../../app/store";
 import axios from "axios";
 
-import { Torrent, TorrentFile, Preferences } from "./torrentsTypes";
+import { Torrent, TorrentFile, Category, Preferences } from "./torrentsTypes";
 
 interface TorrentsState {
   applicationInfo: string;
+  preferences: Preferences;
+  categories: Array<Category>;
   torrents: Array<Torrent>;
   torrentsFiles: { [key: string]: Array<TorrentFile> };
-  preferences: Preferences;
 }
 
 const initialState: TorrentsState = {
   applicationInfo: "",
   preferences: {} as Preferences,
+  categories: [],
   torrents: [],
   torrentsFiles: {},
 };
@@ -27,6 +29,9 @@ export const torrentsSlice = createSlice({
     },
     setPreferences: (state, action: PayloadAction<Preferences>) => {
       state.preferences = action.payload;
+    },
+    setCategories: (state, action: PayloadAction<Array<Category>>) => {
+      state.categories = action.payload;
     },
     setTorrents: (state, action: PayloadAction<Array<Torrent>>) => {
       action.payload.sort((a, b) => {
@@ -71,6 +76,15 @@ export const fetchPreferences = (): AppThunk => (dispatch) => {
     .catch(() => {});
 };
 
+export const fetchCategories = (): AppThunk => (dispatch) => {
+  axios
+    .get("/api/qbittorrent/categories")
+    .then((res) =>
+      dispatch(torrentsSlice.actions.setCategories(res.data as Array<Category>))
+    )
+    .catch(() => {});
+};
+
 export const fetchTorrentsAsync = (): AppThunk => (dispatch) => {
   axios
     .get("/api/qbittorrent/torrents")
@@ -100,6 +114,7 @@ export const selectApplicationInfo = (state: RootState) =>
   state.torrents.applicationInfo;
 export const selectPreferences = (state: RootState) =>
   state.torrents.preferences;
+export const selectCategories = (state: RootState) => state.torrents.categories;
 export const selectTorrents = (state: RootState) => state.torrents.torrents;
 export const selectTorrentFiles = (torrentHash: string) => (state: RootState) =>
   state.torrents.torrentsFiles[torrentHash];

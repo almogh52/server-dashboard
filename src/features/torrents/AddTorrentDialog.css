@@ -1,0 +1,11 @@
+.server-dashboard-add-torrent-link-textfield .mdc-notched-outline {
+  opacity: 0;
+}
+
+.server-dashboard-add-torrent-link-textfield .mdc-text-field__input {
+  padding: 0 !important;
+}
+
+.server-dashboard-add-torrent-category-select {
+  margin-top: 10px;
+}

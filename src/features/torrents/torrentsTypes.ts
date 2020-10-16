@@ -68,6 +68,11 @@ export interface TorrentFile {
   availability: number;
 }
 
+export interface Category {
+  name: string;
+  savePath: string;
+}
+
 export interface Preferences {
   locale: string;
   createSubfolderEnabled: boolean;

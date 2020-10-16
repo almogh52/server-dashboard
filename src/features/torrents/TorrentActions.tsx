@@ -367,7 +367,8 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
 
   const completed =
     props.torrent.state === TorrentState.Completed ||
-    props.torrent.bytesDownloaded >= props.torrent.size;
+    (props.torrent.totalPieces > 0 &&
+      props.torrent.bytesDownloaded >= props.torrent.size);
 
   return (
     <div

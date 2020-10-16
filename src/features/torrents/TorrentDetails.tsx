@@ -27,7 +27,8 @@ export interface TorrentDetailsProps {
 export function TorrentDetails(props: TorrentDetailsProps) {
   const completed =
     props.torrent.state === TorrentState.Completed ||
-    props.torrent.bytesDownloaded >= props.torrent.size;
+    (props.torrent.totalPieces > 0 &&
+      props.torrent.bytesDownloaded >= props.torrent.size);
 
   if (props.hidden) {
     return null;
@@ -97,9 +98,9 @@ export function TorrentDetails(props: TorrentDetailsProps) {
 
               <Typography use="body2">
                 <b>Pieces: </b>
-                {`${props.torrent.totalPieces} x ${prettyBytes(
+                {props.torrent.totalPieces > 0 ? `${props.torrent.totalPieces} x ${prettyBytes(
                   props.torrent.pieceSize
-                )} (${props.torrent.piecesDownloaded} downloaded)`}
+                )} (${props.torrent.piecesDownloaded} downloaded)` : ""}
               </Typography>
 
               <Typography use="body2">
