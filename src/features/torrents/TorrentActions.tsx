@@ -322,6 +322,15 @@ const decreaseTorrentPriority = (torrent: Torrent): Promise<any> => {
   );
 };
 
+const setTorrentForceStart = (
+  torrent: Torrent,
+  forceStart: boolean
+): Promise<any> => {
+  return axios.post(`/api/qbittorrent/torrent/${torrent.hash}/setForceStart`, {
+    forceStart,
+  });
+};
+
 const copyTorrentName = (torrent: Torrent): void => {
   copy(torrent.name) &&
     snackbarQueue.notify({
@@ -418,6 +427,22 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
             props.torrent.state === TorrentState.Completed
               ? "Resume"
               : "Pause"}
+          </ListItem>
+
+          <ListItem
+            disabled={disabled}
+            onClick={() =>
+              setTorrentForceStart(
+                props.torrent,
+                !props.torrent.forceStart
+              ).catch(() => {})
+            }
+          >
+            <ListItemGraphic
+              style={{ color: "var(--mdc-theme-primary)" }}
+              icon={props.torrent.forceStart ? "play_arrow" : "fast_forward"}
+            />
+            {props.torrent.forceStart ? "Resume" : "Force Resume"}
           </ListItem>
 
           <ListDivider />
