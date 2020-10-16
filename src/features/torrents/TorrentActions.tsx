@@ -322,6 +322,21 @@ const decreaseTorrentPriority = (torrent: Torrent): Promise<any> => {
   );
 };
 
+const copyTorrentName = (torrent: Torrent): void => {
+  copy(torrent.name) &&
+    snackbarQueue.notify({
+      title: <b>Name Copied</b>,
+      body: "The torrent's name has been copied to your clipboard!",
+      dismissesOnAction: true,
+      icon: "content_copy",
+      actions: [
+        {
+          title: "Dismiss",
+        },
+      ],
+    });
+};
+
 const copyTorrentHash = (torrent: Torrent): void => {
   copy(torrent.hash) &&
     snackbarQueue.notify({
@@ -556,16 +571,24 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
             onMouseEnter={() => setCopyOpen(true)}
             onMouseLeave={() => setCopyOpen(false)}
           >
-            <ListItem onClick={() => copyTorrentHash(props.torrent)}>
+            <ListItem onClick={() => copyTorrentName(props.torrent)}>
               <ListItemGraphic
                 style={{ color: "#424242" }}
-                icon="content_copy"
+                icon="description"
               />
+              Copy Name
+            </ListItem>
+
+            <ListItem onClick={() => copyTorrentHash(props.torrent)}>
+              <ListItemGraphic style={{ color: "#424242" }} icon="fact_check" />
               Copy Hash
             </ListItem>
 
             <ListItem onClick={() => copyTorrentMagnetLink(props.torrent)}>
-              <ListItemGraphic style={{ color: "#424242" }} icon="file_copy" />
+              <ListItemGraphic
+                style={{ color: "#424242" }}
+                icon="insert_link"
+              />
               Copy Magnet Link
             </ListItem>
           </CollapsibleList>
