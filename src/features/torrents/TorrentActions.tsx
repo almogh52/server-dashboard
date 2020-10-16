@@ -322,6 +322,26 @@ const decreaseTorrentPriority = (torrent: Torrent): Promise<any> => {
   );
 };
 
+const recheckTorrent = (torrent: Torrent): Promise<any> => {
+  return axios.post(`/api/qbittorrent/torrent/${torrent.hash}/recheck`);
+};
+
+const reannounceTorrent = (torrent: Torrent): Promise<any> => {
+  return axios.post(`/api/qbittorrent/torrent/${torrent.hash}/reannounce`);
+};
+
+const toggleTorrentDownloadSeqOrder = (torrent: Torrent): Promise<any> => {
+  return axios.post(
+    `/api/qbittorrent/torrent/${torrent.hash}/toggleDownloadSeqOrder`
+  );
+};
+
+const toggleTorrentDownloadEdgesFirst = (torrent: Torrent): Promise<any> => {
+  return axios.post(
+    `/api/qbittorrent/torrent/${torrent.hash}/toggleDownloadEdgesFirst`
+  );
+};
+
 const setTorrentForceStart = (
   torrent: Torrent,
   forceStart: boolean
@@ -383,7 +403,9 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
   const menuEvent = useContextMenuEvent();
   if (!menuEvent) return null;
 
-  const openedAbove = (menuEvent.clientY as number) + 600 > window.innerHeight;
+  const maxHeight = 742;
+  const openedAbove =
+    (menuEvent.clientY as number) + maxHeight > window.innerHeight;
 
   const disabled =
     props.torrent.state === TorrentState.Error ||
@@ -397,7 +419,7 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
   return (
     <div
       style={{
-        height: "600px",
+        height: `${maxHeight}px`,
         display: openedAbove ? "flex" : "",
         flexWrap: "wrap",
       }}
@@ -409,7 +431,7 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
           alignSelf: openedAbove ? "flex-end" : "",
         }}
       >
-        <List style={{ width: "100%", marginRight: "20px" }} disabled>
+        <List style={{ width: "100%", marginRight: "20px" }}>
           <ListItem
             disabled={disabled}
             onClick={() => pauseResumeTorrent(props.torrent).catch(() => {})}
@@ -501,6 +523,55 @@ export function TorrentContextMenu(props: TorrentContextMenuProps) {
               icon="vertical_align_top"
             />
             Limit Upload Rate
+          </ListItem>
+
+          <ListDivider />
+
+          <ListItem
+            onClick={() =>
+              toggleTorrentDownloadSeqOrder(props.torrent).catch(() => {})
+            }
+          >
+            <ListItemGraphic
+              style={{
+                color: props.torrent.downloadSeqOrder ? "#64dd17" : "#d50000",
+              }}
+              icon={props.torrent.downloadSeqOrder ? "check" : "clear"}
+            />
+            Download in Sequential Mode
+          </ListItem>
+
+          <ListItem
+            onClick={() =>
+              toggleTorrentDownloadEdgesFirst(props.torrent).catch(() => {})
+            }
+          >
+            <ListItemGraphic
+              style={{
+                color: props.torrent.downloadEdgesFirst ? "#64dd17" : "#d50000",
+              }}
+              icon={props.torrent.downloadEdgesFirst ? "check" : "clear"}
+            />
+            Download Edge Pieces First
+          </ListItem>
+
+          <ListDivider />
+
+          <ListItem
+            onClick={() => recheckTorrent(props.torrent).catch(() => {})}
+          >
+            <ListItemGraphic style={{ color: "#1565c0" }} icon="find_in_page" />
+            Force Recheck
+          </ListItem>
+
+          <ListItem
+            onClick={() => reannounceTorrent(props.torrent).catch(() => {})}
+          >
+            <ListItemGraphic
+              style={{ color: "#1565c0" }}
+              icon="person_search"
+            />
+            Force Reannounce
           </ListItem>
 
           {!completed ? (

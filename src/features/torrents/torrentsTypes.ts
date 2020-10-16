@@ -50,6 +50,11 @@ export interface Torrent {
   piecesDownloaded: number;
   totalPieces: number;
   pieceSize: number;
+  downloadSeqOrder: boolean;
+  downloadEdgesFirst: boolean;
+  autoManage: boolean;
+  category: string;
+  tags: Array<string>;
 }
 
 export enum TorrentFilePriority {

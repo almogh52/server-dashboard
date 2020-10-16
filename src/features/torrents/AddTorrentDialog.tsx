@@ -77,7 +77,7 @@ const addTorrents = async (
   skipHashCheck: boolean,
   createSubfolder: boolean,
   downloadSeqOrder: boolean,
-  downloadEdgeFirst: boolean,
+  downloadEdgesFirst: boolean,
   downloadLimit: number,
   uploadLimit: number
 ): Promise<void> => {
@@ -136,7 +136,7 @@ const addTorrents = async (
     skipHashCheck,
     createSubfolder,
     downloadSeqOrder,
-    downloadEdgeFirst,
+    downloadEdgesFirst,
   });
 };
 
@@ -224,7 +224,7 @@ export function AddTorrentDialog(props: AddTorrentDialogProps) {
     props.defaultCreateSubfolder
   );
   const [downloadSeqOrder, setDownloadSeqOrder] = useState(false);
-  const [downloadEdgeFirst, setDownloadEdgeFirst] = useState(false);
+  const [downloadEdgesFirst, setDownloadEdgesFirst] = useState(false);
 
   const [savePath, setSavePath] = useState(props.defaultSavePath);
   const [cookie, setCookie] = useState("");
@@ -392,8 +392,8 @@ export function AddTorrentDialog(props: AddTorrentDialogProps) {
           />
           <Checkbox
             label="Download Edge Pieces First"
-            checked={downloadEdgeFirst}
-            onChange={(evt) => setDownloadEdgeFirst(evt.currentTarget.checked)}
+            checked={downloadEdgesFirst}
+            onChange={(evt) => setDownloadEdgesFirst(evt.currentTarget.checked)}
           />
           <SpeedLimitTextField
             label="Download Speed Limit"
@@ -451,7 +451,7 @@ export function AddTorrentDialog(props: AddTorrentDialogProps) {
               skipHashCheck,
               createSubfolder,
               downloadSeqOrder,
-              downloadEdgeFirst,
+              downloadEdgesFirst,
               downloadLimit,
               uploadLimit
             )
