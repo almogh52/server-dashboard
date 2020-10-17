@@ -8,6 +8,7 @@ interface TorrentsState {
   applicationInfo: string;
   preferences: Preferences;
   categories: Array<Category>;
+  tags: Array<string>;
   torrents: Array<Torrent>;
   torrentsFiles: { [key: string]: Array<TorrentFile> };
 }
@@ -16,6 +17,7 @@ const initialState: TorrentsState = {
   applicationInfo: "",
   preferences: {} as Preferences,
   categories: [],
+  tags: [],
   torrents: [],
   torrentsFiles: {},
 };
@@ -32,6 +34,9 @@ export const torrentsSlice = createSlice({
     },
     setCategories: (state, action: PayloadAction<Array<Category>>) => {
       state.categories = action.payload;
+    },
+    setTags: (state, action: PayloadAction<Array<string>>) => {
+      state.tags = action.payload;
     },
     setTorrents: (state, action: PayloadAction<Array<Torrent>>) => {
       action.payload.sort((a, b) => {
@@ -85,6 +90,15 @@ export const fetchCategories = (): AppThunk => (dispatch) => {
     .catch(() => {});
 };
 
+export const fetchTags = (): AppThunk => (dispatch) => {
+  axios
+    .get("/api/qbittorrent/tags")
+    .then((res) =>
+      dispatch(torrentsSlice.actions.setTags(res.data as Array<string>))
+    )
+    .catch(() => {});
+};
+
 export const fetchTorrentsAsync = (): AppThunk => (dispatch) => {
   axios
     .get("/api/qbittorrent/torrents")
@@ -115,6 +129,7 @@ export const selectApplicationInfo = (state: RootState) =>
 export const selectPreferences = (state: RootState) =>
   state.torrents.preferences;
 export const selectCategories = (state: RootState) => state.torrents.categories;
+export const selectTags = (state: RootState) => state.torrents.tags;
 export const selectTorrents = (state: RootState) => state.torrents.torrents;
 export const selectTorrentFiles = (torrentHash: string) => (state: RootState) =>
   state.torrents.torrentsFiles[torrentHash];

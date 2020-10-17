@@ -10,6 +10,7 @@ import {
   fetchApplicationInfo,
   fetchPreferences,
   fetchCategories,
+  fetchTags
 } from "./torrentsSlice";
 
 import { TorrentItem } from "./TorrentItem";
@@ -42,6 +43,7 @@ export function Torrents() {
     dispatch(fetchApplicationInfo());
     dispatch(fetchPreferences());
     dispatch(fetchCategories());
+    dispatch(fetchTags());
     dispatch(fetchTorrentsAsync());
 
     const interval = setInterval(() => dispatch(fetchTorrentsAsync()), 400);

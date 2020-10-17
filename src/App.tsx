@@ -19,6 +19,8 @@ import "@rmwc/dialog/styles";
 import { SnackbarQueue } from "@rmwc/snackbar";
 import "@rmwc/snackbar/styles";
 
+import { Portal } from '@rmwc/base';
+
 import { dialogQueue } from "./dialogQueue";
 import { snackbarQueue } from "./snackbarQueue";
 
@@ -30,6 +32,7 @@ function App() {
       className="server-dashboard-app"
       options={{ primary: "#0091ea", secondary: "#212121" }}
     >
+      <Portal />
       <DialogQueue dialogs={dialogQueue.dialogs} />
       <SnackbarQueue messages={snackbarQueue.messages} leading />
       <TopAppBar fixed>

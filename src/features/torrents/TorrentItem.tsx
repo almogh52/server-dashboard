@@ -1,13 +1,27 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import "./TorrentItem.css";
-import { fetchTorrentFilesAsync, selectTorrentFiles } from "./torrentsSlice";
+
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchTorrentFilesAsync,
+  selectTorrentFiles,
+  selectTags,
+  selectCategories,
+  selectPreferences,
+} from "./torrentsSlice";
 import { Torrent, TorrentState } from "./torrentsTypes";
 
 import { LinearProgress } from "@rmwc/linear-progress";
 import "@rmwc/linear-progress/styles";
 
-import { ListItem, ListItemMeta, CollapsibleList } from "@rmwc/list";
+import {
+  ListItem,
+  ListItemGraphic,
+  ListItemMeta,
+  ListDivider,
+  CollapsibleList,
+} from "@rmwc/list";
 import "@rmwc/list/styles";
 
 import { Icon } from "@rmwc/icon";
@@ -21,6 +35,12 @@ import "@rmwc/typography/styles";
 
 import { ThemeProvider } from "@rmwc/theme";
 import "@rmwc/theme/styles";
+
+import { Chip, ChipSet } from "@rmwc/chip";
+import "@rmwc/chip/styles";
+
+import { SimpleMenu } from "@rmwc/menu";
+import "@rmwc/menu/styles";
 
 import { TorrentDetails } from "./TorrentDetails";
 import { TorrentContextMenu } from "./TorrentActions";
@@ -41,6 +61,33 @@ interface TorrentListItemProps {
   torrent: Torrent;
   onClick?: React.MouseEventHandler<HTMLElement>;
 }
+
+const addTorrentTags = (
+  torrent: Torrent,
+  tags: Array<string>
+): Promise<void> => {
+  return axios.post(`/api/qbittorrent/torrent/${torrent.hash}/addTags`, {
+    tags,
+  });
+};
+
+const removeTorrentTags = (
+  torrent: Torrent,
+  tags: Array<string>
+): Promise<void> => {
+  return axios.post(`/api/qbittorrent/torrent/${torrent.hash}/removeTags`, {
+    tags,
+  });
+};
+
+const setTorrentCategory = (
+  torrent: Torrent,
+  category: string
+): Promise<void> => {
+  return axios.post(`/api/qbittorrent/torrent/${torrent.hash}/setCategory`, {
+    category,
+  });
+};
 
 const iconForTorrentState = (state: TorrentState): string => {
   switch (state) {
@@ -77,6 +124,10 @@ const iconForTorrentState = (state: TorrentState): string => {
 };
 
 function TorrentListItem(props: TorrentListItemProps) {
+  const tags = useSelector(selectTags);
+  const categories = useSelector(selectCategories);
+  const { savePath } = useSelector(selectPreferences);
+
   const error =
     props.torrent.state === TorrentState.Error ||
     props.torrent.state === TorrentState.MissingFiles ||
@@ -99,7 +150,7 @@ function TorrentListItem(props: TorrentListItemProps) {
         ref={itemRef}
         key={props.torrent.hash}
         onClick={props.onClick}
-        style={{ height: "85px" }}
+        style={{ height: "95px" }}
       >
         <ThemeProvider
           options={
@@ -125,6 +176,7 @@ function TorrentListItem(props: TorrentListItemProps) {
           <div
             style={{
               display: "flex",
+              alignItems: "center",
               justifyContent: "space-between",
               width: "100%",
             }}
@@ -145,11 +197,89 @@ function TorrentListItem(props: TorrentListItemProps) {
               >
                 {completed ? "" : `#${props.torrent.priority}`}
               </Typography>
+
               <Icon
                 icon={iconForTorrentState(props.torrent.state)}
                 style={{ paddingRight: "10px" }}
               />
+
               {props.torrent.name}
+
+              <ChipSet
+                onClick={(evt) => evt.stopPropagation()}
+                style={{ padding: "0 10px" }}
+              >
+                <SimpleMenu
+                  renderToPortal
+                  handle={
+                    <Chip
+                      label={
+                        props.torrent.category.length > 0
+                          ? props.torrent.category
+                          : "No category set"
+                      }
+                      icon="category"
+                      style={{ marginRight: "25px" }}
+                      onClick={() => {}}
+                    />
+                  }
+                >
+                  <ListItem
+                    activated={props.torrent.category.length === 0}
+                    onClick={() => setTorrentCategory(props.torrent, "")}
+                  >
+                    <ListItemGraphic icon="clear" />
+                    {`No Category (Default Path: '${savePath}')`}
+                  </ListItem>
+                  <ListDivider />
+                  {categories.map((category) => (
+                    <ListItem
+                      activated={category.name === props.torrent.category}
+                      style={{ paddingRight: "30px" }}
+                      onClick={() =>
+                        setTorrentCategory(props.torrent, category.name)
+                      }
+                    >
+                      <ListItemGraphic icon="category" />
+                      {`${category.name} (Path: '${
+                        category.savePath.length > 0
+                          ? category.savePath
+                          : `${savePath}${category.name}`
+                      }')`}
+                    </ListItem>
+                  ))}
+                </SimpleMenu>
+
+                {props.torrent.tags.map((tag) =>
+                  tag.length > 0 ? (
+                    <Chip
+                      label={tag}
+                      icon="label"
+                      trailingIcon={{
+                        icon: "clear",
+                        onClick: () => removeTorrentTags(props.torrent, [tag]),
+                      }}
+                    />
+                  ) : null
+                )}
+
+                <SimpleMenu
+                  renderToPortal
+                  handle={<Chip label="Add label" icon="add" />}
+                >
+                  {tags
+                    .filter((tag) => !props.torrent.tags.includes(tag))
+                    .map((tag) => (
+                      <ListItem
+                        style={{ paddingRight: "30px" }}
+                        onClick={() => addTorrentTags(props.torrent, [tag])}
+                      >
+                        <ListItemGraphic icon="label" />
+                        {tag}
+                      </ListItem>
+                    ))}
+                </SimpleMenu>
+              </ChipSet>
             </Typography>
 
             <Typography
